@@ -34,7 +34,7 @@ class TicketModel(Base):
         nullable=False
     )
 
-    user: Mapped["UserModel"] = relationship(
+    users: Mapped["UserModel"] = relationship(
         back_populates="tickets"
     )
 

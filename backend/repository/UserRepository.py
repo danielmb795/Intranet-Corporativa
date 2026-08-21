@@ -1,12 +1,28 @@
 from database.engine import SessionLocal
 from models.UserModel import UserModel
 from models.enums import UserEnums
+import bcrypt
 
 class UserRepository():
     @staticmethod
+    def _hash_password(password: str) -> str:
+        salt = bcrypt.gensalt()
+        hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
+        return hashed.decode('utf-8')
+
+    @staticmethod
+    def _verify(password: str, hashed: str) ->  bool:
+        return bcrypt.checkpw(
+            password.encode('utf-8'),
+            hashed.encode('utf-8')
+        )
+
+
+    @staticmethod
     def creteUser(name: str, email: str, password: str, type: UserEnums) -> UserModel | None:
         with SessionLocal() as session:
-            new_user = UserModel(name=name, email=email, password=password,type=type)
+            hashed_password = UserRepository._hash_password(password)
+            new_user = UserModel(name=name, email=email, password=hashed_password,type=type)
             session.add(new_user)
             session.commit()
         return new_user
